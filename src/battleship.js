@@ -15,6 +15,8 @@ class Ship {
   isSunk() {
     return this.sunk;
   }
+
+  place(coordinates, direction) {}
 }
 
 class GameBoard {
@@ -34,7 +36,9 @@ class GameBoard {
     }
   }
 
-  placeShip() {}
+  placeShip(coordinates, direction, length) {}
+
+  checkShipArea(coordinates, direction, length) {}
 
   receiveAttack(coordinates) {}
 
@@ -51,3 +55,11 @@ class Cell {
 
   hit() {}
 }
+
+class Player {
+  constructor() {
+    this.gameBoard = new GameBoard();
+  }
+}
+
+export { Ship, GameBoard };
