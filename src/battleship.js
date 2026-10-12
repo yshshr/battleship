@@ -40,18 +40,11 @@ class GameBoard {
 
   placeShip(coordinates, direction, length) {
     this.#checkCoordinates(coordinates);
-    let endCoordinates;
-    if (direction % 2 === 0) {
-      endCoordinates = [
-        coordinates[0],
-        coordinates[1] - (direction - 1) * (length - 1),
-      ];
-    } else {
-      endCoordinates = [
-        coordinates[0] - (direction - 2) * (length - 1),
-        coordinates[1],
-      ];
-    }
+    let endCoordinates = this.#getEndCoordinates(
+      coordinates,
+      direction,
+      length,
+    );
     this.#checkCoordinates(endCoordinates);
     let ship = new Ship(length);
     this.ships.push(ship);
@@ -79,9 +72,61 @@ class GameBoard {
     }
   }
 
-  checkShipArea(coordinates, direction, length) {}
+  #getEndCoordinates(coordinates, direction, length) {
+    let endCoordinates;
+    if (direction % 2 === 0) {
+      endCoordinates = [
+        coordinates[0],
+        coordinates[1] - (direction - 1) * (length - 1),
+      ];
+    } else {
+      endCoordinates = [
+        coordinates[0] - (direction - 2) * (length - 1),
+        coordinates[1],
+      ];
+    }
+    return endCoordinates;
+  }
 
-  receiveAttack(coordinates) {}
+  checkShipArea(coordinates, direction, length) {
+    this.#checkCoordinates(coordinates);
+    let endCoordinates = this.#getEndCoordinates(
+      coordinates,
+      direction,
+      length,
+    );
+    this.#checkCoordinates(endCoordinates);
+    let shipArea = [];
+    if (
+      endCoordinates[0] < coordinates[0] ||
+      endCoordinates[1] < coordinates[1]
+    ) {
+      shipArea.push([endCoordinates[0] - 1, endCoordinates[1] - 1]);
+      shipArea.push([coordinates[0] + 1, coordinates[1] + 1]);
+    } else {
+      shipArea.push([coordinates[0] - 1, coordinates[1] - 1]);
+      shipArea.push([endCoordinates[0] + 1, endCoordinates[1] + 1]);
+    }
+    for (let i = 0; i < shipArea.length; i++) {
+      for (let j = 0; j < shipArea[i].length; j++) {
+        if (shipArea[i][j] < 0) {
+          shipArea[i][j] = 0;
+        } else if (shipArea[i][j] > 9) {
+          shipArea[i][j] = 9;
+        }
+      }
+    }
+    return shipArea;
+  }
+
+  receiveAttack(coordinates) {
+    this.#checkCoordinates(coordinates);
+    let hitState = this.board[coordinates[0]][coordinates[1]].hit();
+    if (hitState === 1) {
+      let shipIndex = this.board[coordinates[0]][coordinates[1]].getShipIndex();
+      this.ships[shipIndex].hit();
+    }
+  }
 
   isAllSunk() {}
 }
@@ -89,14 +134,21 @@ class GameBoard {
 class Cell {
   constructor() {
     this.shipIndex = null;
-    this.hit = null;
+    this.hitState = null;
   }
 
   place(shipIndex) {
     this.shipIndex = shipIndex;
   }
 
-  hit() {}
+  hit() {
+    this.hitState = this.shipIndex != null ? 1 : 0;
+    return this.hitState;
+  }
+
+  getShipIndex() {
+    return this.shipIndex;
+  }
 }
 
 class Player {
