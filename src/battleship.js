@@ -16,7 +16,9 @@ class Ship {
     return this.sunk;
   }
 
-  place(coordinates, direction) {}
+  place(coordinates, endCoordinates) {
+    this.placeCoordinates = [coordinates, endCoordinates];
+  }
 }
 
 class GameBoard {
@@ -36,7 +38,46 @@ class GameBoard {
     }
   }
 
-  placeShip(coordinates, direction, length) {}
+  placeShip(coordinates, direction, length) {
+    this.#checkCoordinates(coordinates);
+    let endCoordinates;
+    if (direction % 2 === 0) {
+      endCoordinates = [
+        coordinates[0],
+        coordinates[1] - (direction - 1) * (length - 1),
+      ];
+    } else {
+      endCoordinates = [
+        coordinates[0] - (direction - 2) * (length - 1),
+        coordinates[1],
+      ];
+    }
+    this.#checkCoordinates(endCoordinates);
+    let ship = new Ship(length);
+    this.ships.push(ship);
+    const shipIndex = this.ships.length - 1;
+    for (let i = 0; i < length; i++) {
+      if (direction % 2 === 0) {
+        this.board[coordinates[0]][coordinates[1] - (direction - 1) * i].place(
+          shipIndex,
+        );
+      } else {
+        this.board[coordinates[0] - (direction - 2) * i][coordinates[1]].place(
+          shipIndex,
+        );
+      }
+    }
+    ship.place(coordinates, endCoordinates);
+  }
+
+  #checkCoordinates(coordinates) {
+    if (coordinates[0] < 0 || coordinates[1] < 0) {
+      throw new Error("coordinates must greater than or equal 0");
+    }
+    if (coordinates[0] >= 10 || coordinates[1] >= 10) {
+      throw new Error("coordinates must less than 10");
+    }
+  }
 
   checkShipArea(coordinates, direction, length) {}
 
@@ -51,7 +92,9 @@ class Cell {
     this.hit = null;
   }
 
-  place(shipIndex) {}
+  place(shipIndex) {
+    this.shipIndex = shipIndex;
+  }
 
   hit() {}
 }
