@@ -1,3 +1,5 @@
 import "../components/my-component/style.css";
+import { game } from "./gameController.js";
 
-console.log("hello, Odinite!");
+window.game = game;
+// game.playRound([6,6]);

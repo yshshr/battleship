@@ -119,16 +119,44 @@ class GameBoard {
     return shipArea;
   }
 
+  placeShipWithCheckAndRes(coordinates, direction, length) {
+    try {
+      let shipArea = this.checkShipArea(coordinates, direction, length);
+      for (let i = shipArea[0][0]; i <= shipArea[1][0]; i++) {
+        for (let j = shipArea[0][1]; j <= shipArea[1][1]; j++) {
+          if (this.board[i][j].shipIndex != null) {
+            return false;
+          }
+        }
+      }
+      this.placeShip(coordinates, direction, length);
+    } catch (error) {
+      return false;
+    }
+    return true;
+  }
+
   receiveAttack(coordinates) {
     this.#checkCoordinates(coordinates);
     let hitState = this.board[coordinates[0]][coordinates[1]].hit();
     if (hitState === 1) {
-      let shipIndex = this.board[coordinates[0]][coordinates[1]].getShipIndex();
+      let shipIndex = this.board[coordinates[0]][coordinates[1]].shipIndex;
       this.ships[shipIndex].hit();
     }
   }
 
-  isAllSunk() {}
+  isAllSunk() {
+    return this.ships.every((ship) => ship.isSunk());
+  }
+
+  printBoard() {
+    const boardCellValues = this.board.map((row) => {
+      return row.map((cell) => {
+        return `${cell.hitState != null ? cell.hitState : "-"},${cell.shipIndex != null ? cell.shipIndex : "-"}`;
+      });
+    });
+    console.log(boardCellValues);
+  }
 }
 
 class Cell {
@@ -145,16 +173,14 @@ class Cell {
     this.hitState = this.shipIndex != null ? 1 : 0;
     return this.hitState;
   }
-
-  getShipIndex() {
-    return this.shipIndex;
-  }
 }
 
 class Player {
-  constructor() {
+  constructor(name, number) {
+    this.name = name;
+    this.number = number;
     this.gameBoard = new GameBoard();
   }
 }
 
-export { Ship, GameBoard };
+export { Ship, GameBoard, Player };
