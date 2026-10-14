@@ -157,6 +157,24 @@ class GameBoard {
     });
     console.log(boardCellValues);
   }
+
+  unhitBoard() {
+    return this.board.reduce((coordArr, curRow, rowIndex) => {
+      let rowUnhitCoorArr = curRow.reduce(
+        (innerCoordArr, curCell, cellIndex) => {
+          if (curCell.hitState === null) {
+            innerCoordArr.push([rowIndex, cellIndex]);
+          }
+          return innerCoordArr;
+        },
+        [],
+      );
+      if (rowUnhitCoorArr.length > 0) {
+        coordArr = coordArr.concat(rowUnhitCoorArr);
+      }
+      return coordArr;
+    }, []);
+  }
 }
 
 class Cell {

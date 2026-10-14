@@ -49,9 +49,33 @@ function GameController() {
   };
 
   const playRound = (coordinates) => {
-    getOpponentPlayer().gameBoard.receiveAttack(coordinates);
-    switchPlayer();
-    printGameBoard();
+    const enemyGameBoard = getOpponentPlayer().gameBoard;
+    console.log(`${getActivePlayer().name}在${coordinates}执行攻击操作`);
+    enemyGameBoard.receiveAttack(coordinates);
+    if (enemyGameBoard.isAllSunk()) {
+      gameOver(getActivePlayer());
+    } else {
+      switchPlayer();
+      printGameBoard();
+      if (getActivePlayer().number === 2) {
+        autoMove();
+      }
+    }
+  };
+
+  const autoMove = () => {
+    const gameBoard = getActivePlayer().gameBoard;
+    const unhitBoard = gameBoard.unhitBoard();
+    const move = unhitBoard[randomNumber(unhitBoard.length)];
+    playRound(move);
+  };
+
+  const gameOver = (winner) => {
+    console.log(`玩家${players[0].name}的棋盘：`);
+    players[0].gameBoard.printBoard();
+    console.log(`玩家${players[1].name}的棋盘：`);
+    players[1].gameBoard.printBoard();
+    console.log(`游戏结束，赢家为${winner.name}!`);
   };
 
   placeShips();
