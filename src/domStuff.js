@@ -1,5 +1,5 @@
 function DomStuff() {
-  const renderBoard = (game, boardIndex, clickBoardHandler) => {
+  const renderBoard = (game, boardIndex, clickBoardHandler, boardDisabled) => {
     const gameBoardSelectors = [".gameBoardOne", ".gameBoardTwo"];
     const board = game.gameBoards[boardIndex];
     const boardDiv = document.querySelector(gameBoardSelectors[boardIndex]);
@@ -11,7 +11,7 @@ function DomStuff() {
         if (cell.hitState === null) {
           btnContent = "-";
         } else if (cell.hitState === 0) {
-          btnContent = "*";
+          btnContent = "O";
         } else {
           btnContent = "X";
         }
@@ -19,7 +19,12 @@ function DomStuff() {
         const btn = document.createElement("button");
         btn.textContent = btnContent;
         btn.dataset.coordinates = [i, j];
-        btn.addEventListener("click", clickBoardHandler);
+        if (boardDisabled) {
+          btn.setAttribute("disabled", "");
+        } else {
+          btn.addEventListener("click", clickBoardHandler);
+        }
+
         boardDiv.appendChild(btn);
       }
     }
@@ -31,12 +36,22 @@ function DomStuff() {
     turnMsgdiv.textContent = turnMsg;
   };
 
+  const autoClick = (coordinates) => {
+    const btn = document.querySelector(
+      `.gameBoardOne button:nth-of-type(${coordinates[0] * 10 + coordinates[1] + 1})`,
+    );
+    let clickEvent = new MouseEvent("click");
+    btn.dispatchEvent(clickEvent);
+  };
+
   const gameOver = (game) => {
     const turnMsgdiv = document.querySelector(".turn-msg");
     const gameOverMsg = `游戏结束，赢家为${game.getWinner().name}!`;
     turnMsgdiv.textContent = gameOverMsg;
+    renderBoard(game, 0, null, true);
+    renderBoard(game, 1, null, true);
   };
-  return { renderBoard, updateTurnMsg, gameOver };
+  return { renderBoard, updateTurnMsg, gameOver, autoClick };
 }
 let domStuff = DomStuff();
 

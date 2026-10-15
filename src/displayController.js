@@ -3,23 +3,37 @@ import { domStuff } from "./domStuff.js";
 
 function DisplayController() {
   const updateScreen = () => {
-    domStuff.renderBoard(game, 0, clickBoardHandler);
-    domStuff.renderBoard(game, 1, clickBoardHandler);
+    let boradOneDisabled = false;
+    let boardTwoDisabled = false;
+    if (game.getActivePlayer().number === 1) {
+      boradOneDisabled = true;
+    } else {
+      boardTwoDisabled = true;
+    }
+    domStuff.renderBoard(game, 0, clickBoardHandler, boradOneDisabled);
+    domStuff.renderBoard(game, 1, clickBoardHandler, boardTwoDisabled);
     domStuff.updateTurnMsg(game);
   };
 
   const clickBoardHandler = (e) => {
     const target = e.target;
     if (target.dataset.coordinates) {
+      console.log(
+        `${game.getActivePlayer().name}点击了${target.dataset.coordinates}`,
+      );
       let coordinates = target.dataset.coordinates.split(",");
       coordinates = coordinates.map((value) => Number(value));
       game.playRound(coordinates);
-      updateScreen();
       if (game.getWinner()) {
         domStuff.gameOver(game);
+        return;
       }
+      updateScreen();
       if (game.getActivePlayer().number === 2) {
-        game.autoMove();
+        const move = game.autoMove();
+        setTimeout(() => {
+          domStuff.autoClick(move);
+        }, 800);
       }
     }
   };

@@ -34,7 +34,8 @@ function GameController() {
   };
 
   const placeShips = () => {
-    const shipLength = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+    // const shipLength = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+    const shipLength = [4, 1];
     const autoShipPlayer = [0, 1];
     autoShipPlayer.forEach((playerIndex) => {
       const gameBoard = players[playerIndex].gameBoard;
@@ -76,7 +77,8 @@ function GameController() {
     const gameBoard = getActivePlayer().gameBoard;
     const unhitBoard = gameBoard.unhitBoard();
     const move = unhitBoard[randomNumber(unhitBoard.length)];
-    playRound(move);
+    // playRound(move);
+    return move;
   };
 
   const gameOver = (winner) => {
