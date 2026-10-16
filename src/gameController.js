@@ -60,6 +60,9 @@ function GameController() {
 
   const playRound = (coordinates) => {
     const enemyGameBoard = getOpponentPlayer().gameBoard;
+    if (enemyGameBoard.board[coordinates[0]][coordinates[1]].hitState != null) {
+      throw new Error("invalid move");
+    }
     console.log(`${getActivePlayer().name}在${coordinates}执行攻击操作`);
     enemyGameBoard.receiveAttack(coordinates);
     if (enemyGameBoard.isAllSunk()) {
@@ -74,7 +77,7 @@ function GameController() {
   };
 
   const autoMove = () => {
-    const gameBoard = getActivePlayer().gameBoard;
+    const gameBoard = getOpponentPlayer().gameBoard;
     const unhitBoard = gameBoard.unhitBoard();
     const move = unhitBoard[randomNumber(unhitBoard.length)];
     // playRound(move);
@@ -90,6 +93,16 @@ function GameController() {
     gameWinner = winner;
   };
 
+  const playAgain = () => {
+    players.forEach((player) => {
+      player.gameBoard.clear();
+    });
+    curPlayer = players[0];
+    gameWinner = null;
+    placeShips();
+    printGameBoard();
+  };
+
   placeShips();
   printGameBoard();
 
@@ -99,6 +112,7 @@ function GameController() {
     getActivePlayer,
     getWinner,
     autoMove,
+    playAgain,
   };
 }
 

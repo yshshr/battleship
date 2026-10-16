@@ -175,6 +175,16 @@ class GameBoard {
       return coordArr;
     }, []);
   }
+
+  clear() {
+    this.ships = [];
+    this.board.forEach((row) => {
+      row.forEach((cell) => {
+        cell.shipIndex = null;
+        cell.hitState = null;
+      });
+    });
+  }
 }
 
 class Cell {

@@ -19,8 +19,35 @@ body {
   justify-content: space-around;
 }
 .game-area > div {
-  /* flex:1; */
+  display: grid;
+  grid-template-rows: 300px 30px;
+  grid-template-columns: 30px 300px;
+}
+
+.left-remark {
+  grid-area: 1/1/2/2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.bottom-remark {
+  grid-area: 2/2/3/3;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.gameBoardOne,
+.gameBoardTwo {
+  grid-area: 1/2/2/3;
   display: grid;
   grid-template-rows: repeat(10, 30px);
   grid-template-columns: repeat(10, 30px);
+}
+
+.last-move {
+  color: red;
+  font-weight: bold;
 }

@@ -1,38 +1,54 @@
 function DomStuff() {
-  const renderBoard = (game, boardIndex, clickBoardHandler, boardDisabled) => {
-    const gameBoardSelectors = [".gameBoardOne", ".gameBoardTwo"];
-    const board = game.gameBoards[boardIndex];
+  const gameBoardSelectors = [".gameBoardOne", ".gameBoardTwo"];
+
+  const renderBoard = (
+    board,
+    boardIndex,
+    clickBoardHandler,
+    boardDisabled,
+    lastMove,
+  ) => {
     const boardDiv = document.querySelector(gameBoardSelectors[boardIndex]);
     boardDiv.innerHTML = "";
     for (let i = 0; i < board.length; i++) {
       for (let j = 0; j < board[i].length; j++) {
         const cell = board[i][j];
         let btnContent;
+        let btnDisabled = false;
         if (cell.hitState === null) {
           btnContent = "-";
         } else if (cell.hitState === 0) {
           btnContent = "O";
+          btnDisabled = true;
         } else {
           btnContent = "X";
+          btnDisabled = true;
+        }
+        if (cell.shipIndex != null) {
+          btnContent += ":S";
         }
 
         const btn = document.createElement("button");
         btn.textContent = btnContent;
         btn.dataset.coordinates = [i, j];
-        if (boardDisabled) {
+        // i+1,j+1  =>  10-j,i+1
+        btn.style.gridArea = `${10 - j}/${i + 1}/${11 - j}/${i + 2}`;
+        if (boardDisabled || btnDisabled) {
           btn.setAttribute("disabled", "");
         } else {
           btn.addEventListener("click", clickBoardHandler);
         }
-
+        if (lastMove && lastMove[0] === i && lastMove[1] === j) {
+          btn.classList.add("last-move");
+        }
         boardDiv.appendChild(btn);
       }
     }
   };
 
-  const updateTurnMsg = (game) => {
+  const updateTurnMsg = (player) => {
     const turnMsgdiv = document.querySelector(".turn-msg");
-    let turnMsg = `轮到玩家${game.getActivePlayer().name}的回合了`;
+    let turnMsg = `轮到玩家${player.name}的回合了`;
     turnMsgdiv.textContent = turnMsg;
   };
 
@@ -48,10 +64,49 @@ function DomStuff() {
     const turnMsgdiv = document.querySelector(".turn-msg");
     const gameOverMsg = `游戏结束，赢家为${game.getWinner().name}!`;
     turnMsgdiv.textContent = gameOverMsg;
-    renderBoard(game, 0, null, true);
-    renderBoard(game, 1, null, true);
+    renderBoard(game.gameBoards[0], 0, null, true);
+    renderBoard(game.gameBoards[1], 1, null, true);
   };
-  return { renderBoard, updateTurnMsg, gameOver, autoClick };
+
+  const showNewGameBtn = (playAgain) => {
+    const newGameBtn = document.querySelector(".new-game");
+    newGameBtn.removeAttribute("hidden");
+    newGameBtn.addEventListener("click", playAgain);
+  };
+
+  const hideNewGameBtn = () => {
+    const newGameBtn = document.querySelector(".new-game");
+    newGameBtn.setAttribute("hidden", "");
+  };
+
+  const placeCoordinatesRemark = (boardIndex) => {
+    const leftRemarkDiv = document.querySelector(
+      `${gameBoardSelectors[boardIndex]} + div`,
+    );
+    for (let i = 10; i > 0; i--) {
+      const span = document.createElement("span");
+      span.textContent = i;
+      leftRemarkDiv.appendChild(span);
+    }
+    const rightRemarkDiv = document.querySelector(
+      `${gameBoardSelectors[boardIndex]} + div +div`,
+    );
+    for (let i = 1; i <= 10; i++) {
+      const span = document.createElement("span");
+      span.textContent = i;
+      rightRemarkDiv.appendChild(span);
+    }
+  };
+
+  return {
+    renderBoard,
+    updateTurnMsg,
+    gameOver,
+    autoClick,
+    showNewGameBtn,
+    hideNewGameBtn,
+    placeCoordinatesRemark,
+  };
 }
 let domStuff = DomStuff();
 
