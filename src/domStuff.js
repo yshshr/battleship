@@ -98,6 +98,18 @@ function DomStuff() {
     }
   };
 
+  const showPlaceShipBtn = (placeShipHandler) => {
+    const placeShipBtn = document.querySelector(".place-ship");
+    placeShipBtn.addEventListener("click", placeShipHandler);
+    placeShipBtn.removeAttribute("hidden");
+  };
+
+  const showStartGameBtn = (startGamehandler) => {
+    const startGameBtn = document.querySelector(".start-game");
+    startGameBtn.addEventListener("click", startGamehandler);
+    startGameBtn.removeAttribute("hideen");
+  };
+
   return {
     renderBoard,
     updateTurnMsg,
@@ -106,6 +118,8 @@ function DomStuff() {
     showNewGameBtn,
     hideNewGameBtn,
     placeCoordinatesRemark,
+    showPlaceShipBtn,
+    showStartGameBtn,
   };
 }
 let domStuff = DomStuff();

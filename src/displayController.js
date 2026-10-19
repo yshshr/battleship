@@ -58,15 +58,37 @@ function DisplayController() {
 
   const playAgain = () => {
     game.playAgain();
-    updateScreen();
+    domStuff.renderBoard(game.gameBoards[0], 0, dragShipHandler, false);
+    domStuff.renderBoard(game.gameBoards[1], 1, dragShipHandler, true);
     domStuff.hideNewGameBtn();
   };
 
+  const dragShipHandler = (e) => {
+    const target = e.target;
+  };
+
+  const placeShipHandler = () => {
+    game.placeShips([0]);
+    domStuff.renderBoard(game.gameBoards[0], 0, dragShipHandler, false);
+  };
+
+  const startGamehandler = () => {
+    if (game.haveShips(0)) {
+      game.placeShips([1]);
+      updateScreen();
+    }
+  };
+
   const init = () => {
-    updateScreen();
+    // updateScreen();
+    domStuff.renderBoard(game.gameBoards[0], 0, dragShipHandler, false);
+    domStuff.renderBoard(game.gameBoards[1], 1, dragShipHandler, true);
     domStuff.placeCoordinatesRemark(0);
     domStuff.placeCoordinatesRemark(1);
+    domStuff.showPlaceShipBtn(placeShipHandler);
+    domStuff.showStartGameBtn(startGamehandler);
   };
+
   init();
 }
 

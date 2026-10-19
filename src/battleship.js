@@ -60,7 +60,14 @@ class GameBoard {
         );
       }
     }
-    ship.place(coordinates, endCoordinates);
+    if (
+      coordinates[0] < endCoordinates[0] ||
+      coordinates[1] < endCoordinates[1]
+    ) {
+      ship.place(coordinates, endCoordinates);
+    } else {
+      ship.place(endCoordinates, coordinates);
+    }
   }
 
   #checkCoordinates(coordinates) {
@@ -86,6 +93,42 @@ class GameBoard {
       ];
     }
     return endCoordinates;
+  }
+
+  #getStartToEndCoordinates(startCoordinates, endcoordinates) {
+    if (
+      startCoordinates[0] !== endcoordinates[0] &&
+      startCoordinates[1] !== endcoordinates[1]
+    ) {
+      throw new Error("invalid start and end coordinates");
+    }
+    let coodinatesArr = [];
+    let direction;
+    if (startCoordinates[0] < endcoordinates[0]) {
+      direction = 1;
+    } else if (startCoordinates[1] < endcoordinates[1]) {
+      direction = 0;
+    } else if (
+      startCoordinates[0] === endcoordinates[0] &&
+      startCoordinates[1] === endcoordinates[1]
+    ) {
+      coodinatesArr.push(startCoordinates);
+      return coodinatesArr;
+    } else {
+      throw new Error("start or end coordinates error");
+    }
+    for (
+      let i = startCoordinates[1 - direction];
+      i <= endcoordinates[1 - direction];
+      i++
+    ) {
+      if (direction === 0) {
+        coodinatesArr.push([startCoordinates[0], i]);
+      } else {
+        coodinatesArr.push([i, startCoordinates[1]]);
+      }
+    }
+    return coodinatesArr;
   }
 
   checkShipArea(coordinates, direction, length) {
@@ -143,6 +186,37 @@ class GameBoard {
       let shipIndex = this.board[coordinates[0]][coordinates[1]].shipIndex;
       this.ships[shipIndex].hit();
     }
+  }
+
+  replaceShip(shipIndex, coordinates, direction) {
+    this.#checkCoordinates(coordinates);
+    const ship = this.ships[shipIndex];
+    const endCoordinates = this.#getEndCoordinates(
+      coordinates,
+      direction,
+      ship.length,
+    );
+    this.#checkCoordinates(endCoordinates);
+    const originCoordinatesStart = ship.placeCoordinates[0];
+    const originCoordinatesEnd = ship.placeCoordinates[1];
+    const coordinatesArr = this.#getStartToEndCoordinates(
+      originCoordinatesStart,
+      originCoordinatesEnd,
+    );
+    for (const coordinates of coordinatesArr) {
+      const cell = this.board[coordinates[0]][coordinates[1]];
+      cell.place(null);
+    }
+
+    const newCoordinatesArr = this.#getStartToEndCoordinates(
+      coordinates,
+      endCoordinates,
+    );
+    for (const coordinates of newCoordinatesArr) {
+      const cell = this.board[coordinates[0]][coordinates[1]];
+      cell.place(shipIndex);
+    }
+    ship.place(coordinates, endCoordinates);
   }
 
   isAllSunk() {

@@ -33,12 +33,13 @@ function GameController() {
     return [players[0].gameBoard.board, players[1].gameBoard.board];
   };
 
-  const placeShips = () => {
-    // const shipLength = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
-    const shipLength = [4, 1];
-    const autoShipPlayer = [0, 1];
+  const placeShips = (autoShipPlayer) => {
+    const shipLength = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+    // const shipLength = [4, 1];
+    // const autoShipPlayer = [0, 1];
     autoShipPlayer.forEach((playerIndex) => {
       const gameBoard = players[playerIndex].gameBoard;
+      gameBoard.clear();
       for (const length of shipLength) {
         let placeResult = false;
         while (!placeResult) {
@@ -99,11 +100,15 @@ function GameController() {
     });
     curPlayer = players[0];
     gameWinner = null;
-    placeShips();
+    // placeShips();
     printGameBoard();
   };
 
-  placeShips();
+  const haveShips = (gameBoardIndex) => {
+    return players[gameBoardIndex].gameBoard.ships.length > 0;
+  };
+
+  // placeShips();
   printGameBoard();
 
   return {
@@ -113,6 +118,8 @@ function GameController() {
     getWinner,
     autoMove,
     playAgain,
+    placeShips,
+    haveShips,
   };
 }
 

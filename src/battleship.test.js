@@ -49,6 +49,34 @@ describe("placeShip", () => {
     ]);
   });
 
+  test("dierection 2", () => {
+    let gameBoard = new GameBoard();
+    gameBoard.placeShip([5, 6], 2, 3);
+    let shipsLength = gameBoard.ships.length;
+    expect(gameBoard.board[5][6].shipIndex).toBe(shipsLength - 1);
+    expect(gameBoard.board[5][5].shipIndex).toBe(shipsLength - 1);
+    expect(gameBoard.board[5][4].shipIndex).toBe(shipsLength - 1);
+    let newShip = gameBoard.ships[shipsLength - 1];
+    expect(newShip.placeCoordinates).toEqual([
+      [5, 4],
+      [5, 6],
+    ]);
+  });
+
+  test("direction 3", () => {
+    let gameBoard = new GameBoard();
+    gameBoard.placeShip([6, 8], 3, 3);
+    let shipsLength = gameBoard.ships.length;
+    expect(gameBoard.board[6][8].shipIndex).toBe(shipsLength - 1);
+    expect(gameBoard.board[5][8].shipIndex).toBe(shipsLength - 1);
+    expect(gameBoard.board[4][8].shipIndex).toBe(shipsLength - 1);
+    let newShip = gameBoard.ships[shipsLength - 1];
+    expect(newShip.placeCoordinates).toEqual([
+      [4, 8],
+      [6, 8],
+    ]);
+  });
+
   test("short ship", () => {
     let gameBoard = new GameBoard();
     gameBoard.placeShip([5, 6], 3, 1);
@@ -97,6 +125,107 @@ describe("placeShip", () => {
     expect(() => gameBoard.placeShip([6, 8], 0, 3)).toThrow(
       "coordinates must less than 10",
     );
+  });
+});
+
+describe("replaceShip", () => {
+  describe("origin horizontal", () => {
+    let gameBoard;
+    beforeEach(() => {
+      gameBoard = new GameBoard();
+      let newShip = new Ship(3);
+      newShip.place([5, 6], [7, 6]);
+      gameBoard.ships.push(newShip);
+      gameBoard.board[5][6].place(0);
+      gameBoard.board[6][6].place(0);
+      gameBoard.board[7][6].place(0);
+    });
+
+    test("normal", () => {
+      gameBoard.replaceShip(0, [6, 8], 1);
+      expect(gameBoard.board[6][8].shipIndex).toBe(0);
+      expect(gameBoard.board[7][8].shipIndex).toBe(0);
+      expect(gameBoard.board[8][8].shipIndex).toBe(0);
+      expect(gameBoard.board[5][6].shipIndex).toBeNull();
+      expect(gameBoard.board[6][6].shipIndex).toBeNull();
+      expect(gameBoard.board[7][6].shipIndex).toBeNull();
+      expect(gameBoard.ships[0].placeCoordinates).toEqual([
+        [6, 8],
+        [8, 8],
+      ]);
+    });
+
+    test("horizontal to vertical", () => {
+      gameBoard.replaceShip(0, [5, 4], 0);
+      expect(gameBoard.board[5][6].shipIndex).toBe(0);
+      expect(gameBoard.board[5][5].shipIndex).toBe(0);
+      expect(gameBoard.board[5][4].shipIndex).toBe(0);
+      expect(gameBoard.board[6][6].shipIndex).toBeNull();
+      expect(gameBoard.board[7][6].shipIndex).toBeNull();
+      expect(gameBoard.ships[0].placeCoordinates).toEqual([
+        [5, 4],
+        [5, 6],
+      ]);
+    });
+
+    test("out board", () => {
+      expect(() => gameBoard.replaceShip(0, [-1, 4], 0)).toThrow(
+        "coordinates must greater than or equal 0",
+      );
+      expect(() => gameBoard.replaceShip(0, [10, 4], 0)).toThrow("c");
+    });
+
+    test("too large for right", () => {
+      expect(() => gameBoard.replaceShip(0, [8, 8], 1)).toThrow(
+        "coordinates must less than 10",
+      );
+    });
+  });
+
+  describe("origin vertical", () => {
+    let gameBoard;
+    beforeEach(() => {
+      gameBoard = new GameBoard();
+      let newShip = new Ship(3);
+      newShip.place([5, 6], [5, 8]);
+      gameBoard.ships.push(newShip);
+      gameBoard.board[5][6].place(0);
+      gameBoard.board[5][7].place(0);
+      gameBoard.board[5][8].place(0);
+    });
+
+    test("normal", () => {
+      gameBoard.replaceShip(0, [8, 6], 0);
+      expect(gameBoard.board[8][6].shipIndex).toBe(0);
+      expect(gameBoard.board[8][7].shipIndex).toBe(0);
+      expect(gameBoard.board[8][8].shipIndex).toBe(0);
+      expect(gameBoard.board[5][6].shipIndex).toBeNull();
+      expect(gameBoard.board[5][7].shipIndex).toBeNull();
+      expect(gameBoard.board[5][8].shipIndex).toBeNull();
+      expect(gameBoard.ships[0].placeCoordinates).toEqual([
+        [8, 6],
+        [8, 8],
+      ]);
+    });
+
+    test("vertical to horizontal", () => {
+      gameBoard.replaceShip(0, [5, 8], 1);
+      expect(gameBoard.board[5][8].shipIndex).toBe(0);
+      expect(gameBoard.board[6][8].shipIndex).toBe(0);
+      expect(gameBoard.board[7][8].shipIndex).toBe(0);
+      expect(gameBoard.board[5][7].shipIndex).toBeNull();
+      expect(gameBoard.board[5][6].shipIndex).toBeNull();
+      expect(gameBoard.ships[0].placeCoordinates).toEqual([
+        [5, 8],
+        [7, 8],
+      ]);
+    });
+
+    test("too large for top", () => {
+      expect(() => gameBoard.replaceShip(0, [5, 8], 0)).toThrow(
+        "coordinates must less than 10",
+      );
+    });
   });
 });
 
