@@ -326,3 +326,69 @@ describe("receiveAttack", () => {
     );
   });
 });
+
+describe("getSurroundArea", () => {
+  let gameBoard;
+  beforeAll(() => {
+    gameBoard = new GameBoard();
+  });
+  test("normal", () => {
+    expect(gameBoard.getSurroundArea([5, 6])).toEqual([
+      [4, 5],
+      [6, 7],
+    ]);
+  });
+
+  test("top side and corner", () => {
+    expect(gameBoard.getSurroundArea([6, 9])).toEqual([
+      [5, 8],
+      [7, 9],
+    ]);
+    expect(gameBoard.getSurroundArea([0, 9])).toEqual([
+      [0, 8],
+      [1, 9],
+    ]);
+  });
+
+  test("left side and corner", () => {
+    expect(gameBoard.getSurroundArea([0, 6])).toEqual([
+      [0, 5],
+      [1, 7],
+    ]);
+    expect(gameBoard.getSurroundArea([0, 0])).toEqual([
+      [0, 0],
+      [1, 1],
+    ]);
+  });
+
+  test("right side and corner", () => {
+    expect(gameBoard.getSurroundArea([9, 5])).toEqual([
+      [8, 4],
+      [9, 6],
+    ]);
+    expect(gameBoard.getSurroundArea([9, 9])).toEqual([
+      [8, 8],
+      [9, 9],
+    ]);
+  });
+
+  test("bottom side and corner", () => {
+    expect(gameBoard.getSurroundArea([3, 0])).toEqual([
+      [2, 0],
+      [4, 1],
+    ]);
+    expect(gameBoard.getSurroundArea([9, 0])).toEqual([
+      [8, 0],
+      [9, 1],
+    ]);
+  });
+
+  test("out board", () => {
+    expect(() => gameBoard.getSurroundArea([-1, 6])).toThrow(
+      "coordinates must greater than or equal 0",
+    );
+    expect(() => gameBoard.getSurroundArea([5, 10])).toThrow(
+      "coordinates must less than 10",
+    );
+  });
+});

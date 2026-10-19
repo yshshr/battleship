@@ -219,6 +219,20 @@ class GameBoard {
     ship.place(coordinates, endCoordinates);
   }
 
+  getSurroundArea(coodinates) {
+    this.#checkCoordinates(coodinates);
+    const surroundArea = [];
+    const leftBottomCoor = [];
+    const rightTopCoor = [];
+    leftBottomCoor.push(coodinates[0] - 1 >= 0 ? coodinates[0] - 1 : 0);
+    leftBottomCoor.push(coodinates[1] - 1 >= 0 ? coodinates[1] - 1 : 0);
+    rightTopCoor.push(coodinates[0] + 1 < 10 ? coodinates[0] + 1 : 9);
+    rightTopCoor.push(coodinates[1] + 1 < 10 ? coodinates[1] + 1 : 9);
+    surroundArea.push(leftBottomCoor);
+    surroundArea.push(rightTopCoor);
+    return surroundArea;
+  }
+
   isAllSunk() {
     return this.ships.every((ship) => ship.isSunk());
   }
