@@ -188,6 +188,12 @@ class GameBoard {
     }
   }
 
+  /**
+   *
+   * @param {*} shipIndex
+   * @param {*} coordinates
+   * @param {*} direction 方向 0-top 1-right 2-bottom  3-left 此方法只能传0和1
+   */
   replaceShip(shipIndex, coordinates, direction) {
     this.#checkCoordinates(coordinates);
     const ship = this.ships[shipIndex];

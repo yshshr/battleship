@@ -65,11 +65,68 @@ function DisplayController() {
 
   const dragShipHandler = (e) => {
     const target = e.target;
+    console.log(target.classList);
+  };
+
+  const rotateShipHandler = (e) => {
+    const target = e.target;
+    const shipIndex = Number(target.dataset.shipIndex);
+    const ship = game.getShips(0)[shipIndex];
+    const shipStartCoordinates = ship.placeCoordinates[0];
+    const shipEndCoordinates = ship.placeCoordinates[1];
+    let newStartCoordinates;
+    let newDirection;
+    if (shipStartCoordinates[0] < shipEndCoordinates[0]) {
+      newStartCoordinates = [
+        shipStartCoordinates[0],
+        shipStartCoordinates[1] - ship.length + 1,
+      ];
+      newDirection = 0;
+    } else if (shipStartCoordinates[1] < shipEndCoordinates[1]) {
+      newStartCoordinates = [shipEndCoordinates[0], shipEndCoordinates[1]];
+      newDirection = 1;
+    } else {
+      return;
+    }
+    if (
+      game.checkReplaceShip(0, shipIndex, newStartCoordinates, newDirection)
+    ) {
+      game.replaceShip(0, shipIndex, newStartCoordinates, newDirection);
+      domStuff.arrangeBoard(
+        game.gameBoards[0],
+        0,
+        game.getShips(0),
+        rotateShipHandler,
+      );
+    }
+  };
+
+  const dropShipHandler = (e) => {
+    e.preventDefault();
+    const target = e.target;
+    const shipIndex = 6;
+    const dropCoordinates = e.target.dataset.coordinates;
+    console.log(dropCoordinates);
+    if (game.checkReplaceShip(0, shipIndex, [1, 1], 1)) {
+      game.replaceShip(0, shipIndex, [1, 1], 1);
+      domStuff.arrangeBoard(
+        game.gameBoards[0],
+        0,
+        game.getShips(0),
+        rotateShipHandler,
+      );
+    }
   };
 
   const placeShipHandler = () => {
     game.placeShips([0]);
-    domStuff.renderBoard(game.gameBoards[0], 0, dragShipHandler, false);
+    domStuff.arrangeBoard(
+      game.gameBoards[0],
+      0,
+      game.getShips(0),
+      rotateShipHandler,
+      dropShipHandler,
+    );
   };
 
   const startGamehandler = () => {
@@ -81,7 +138,13 @@ function DisplayController() {
 
   const init = () => {
     // updateScreen();
-    domStuff.renderBoard(game.gameBoards[0], 0, dragShipHandler, false);
+    domStuff.arrangeBoard(
+      game.gameBoards[0],
+      0,
+      game.getShips(0),
+      rotateShipHandler,
+      dropShipHandler,
+    );
     domStuff.renderBoard(game.gameBoards[1], 1, dragShipHandler, true);
     domStuff.placeCoordinatesRemark(0);
     domStuff.placeCoordinatesRemark(1);

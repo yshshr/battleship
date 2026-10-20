@@ -1,5 +1,5 @@
 body {
-  background-color: rebeccapurple;
+  margin: 0;
 }
 
 .container {
@@ -50,4 +50,25 @@ body {
 .last-move {
   color: red;
   font-weight: bold;
+}
+
+.arrange-board-div {
+  border: 1px solid lightblue;
+  margin: -1px 0 0 -1px;
+}
+
+.arrange-board-ship {
+  background-color: blue;
+  /* border: 2px solid blue; */
+  /* margin: -1px 0 0 -1px; */
+  display: flex;
+  flex-wrap: wrap;
+  & div {
+    height: 29px;
+    width: 29px;
+  }
+}
+
+.ship-dragging {
+  opacity: 0.5;
 }

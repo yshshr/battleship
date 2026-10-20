@@ -55,6 +55,38 @@ function GameController() {
     });
   };
 
+  const replaceShip = (playerIndex, shipIndex, coordinates, direction) => {
+    if (checkReplaceShip(playerIndex, shipIndex, coordinates, direction)) {
+      const gameBoard = players[playerIndex].gameBoard;
+      gameBoard.replaceShip(shipIndex, coordinates, direction);
+    }
+  };
+
+  const checkReplaceShip = (playerIndex, shipIndex, coordinates, direction) => {
+    const gameBoard = players[playerIndex].gameBoard;
+    const shipLength = gameBoard.ships[shipIndex].length;
+    try {
+      const shipArea = gameBoard.checkShipArea(
+        coordinates,
+        direction,
+        shipLength,
+      );
+      for (let i = shipArea[0][0]; i <= shipArea[1][0]; i++) {
+        for (let j = shipArea[0][1]; j <= shipArea[1][1]; j++) {
+          if (
+            gameBoard.board[i][j].shipIndex != null &&
+            gameBoard.board[i][j].shipIndex !== shipIndex
+          ) {
+            return false;
+          }
+        }
+      }
+    } catch (error) {
+      return false;
+    }
+    return true;
+  };
+
   const randomNumber = (number) => {
     return Math.floor(Math.random() * number);
   };
@@ -108,6 +140,10 @@ function GameController() {
     return players[gameBoardIndex].gameBoard.ships.length > 0;
   };
 
+  const getShips = (gameBoardIndex) => {
+    return players[gameBoardIndex].gameBoard.ships;
+  };
+
   // placeShips();
   printGameBoard();
 
@@ -120,6 +156,9 @@ function GameController() {
     playAgain,
     placeShips,
     haveShips,
+    getShips,
+    replaceShip,
+    checkReplaceShip,
   };
 }
 
