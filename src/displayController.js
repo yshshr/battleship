@@ -97,6 +97,7 @@ function DisplayController() {
         0,
         game.getShips(0),
         rotateShipHandler,
+        dropShipHandler,
       );
     }
   };
@@ -104,16 +105,25 @@ function DisplayController() {
   const dropShipHandler = (e) => {
     e.preventDefault();
     const target = e.target;
-    const shipIndex = 6;
-    const dropCoordinates = e.target.dataset.coordinates;
+    const data = e.dataTransfer.getData("text/plain");
+    const shipIndex = Number(data);
+    const shipPlaceCoordinates = game.getShips(0)[shipIndex].placeCoordinates;
+    let shipDirection = 0;
+    if (shipPlaceCoordinates[0][0] < shipPlaceCoordinates[1][0]) {
+      shipDirection = 1;
+    }
+    const dropCoordinates = target.dataset.coordinates.split(",");
+    dropCoordinates[0] = Number(dropCoordinates[0]);
+    dropCoordinates[1] = Number(dropCoordinates[1]);
     console.log(dropCoordinates);
-    if (game.checkReplaceShip(0, shipIndex, [1, 1], 1)) {
-      game.replaceShip(0, shipIndex, [1, 1], 1);
+    if (game.checkReplaceShip(0, shipIndex, dropCoordinates, shipDirection)) {
+      game.replaceShip(0, shipIndex, dropCoordinates, shipDirection);
       domStuff.arrangeBoard(
         game.gameBoards[0],
         0,
         game.getShips(0),
         rotateShipHandler,
+        dropShipHandler,
       );
     }
   };

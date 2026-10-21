@@ -56,10 +56,8 @@ function GameController() {
   };
 
   const replaceShip = (playerIndex, shipIndex, coordinates, direction) => {
-    if (checkReplaceShip(playerIndex, shipIndex, coordinates, direction)) {
-      const gameBoard = players[playerIndex].gameBoard;
-      gameBoard.replaceShip(shipIndex, coordinates, direction);
-    }
+    const gameBoard = players[playerIndex].gameBoard;
+    gameBoard.replaceShip(shipIndex, coordinates, direction);
   };
 
   const checkReplaceShip = (playerIndex, shipIndex, coordinates, direction) => {

@@ -85,14 +85,10 @@ function DomStuff() {
             shipDiv.classList.add("arrange-board-ship");
             shipDiv.setAttribute("draggable", "true");
             shipDiv.addEventListener("click", rotateShipHandler);
-            shipDiv.addEventListener("drag", (e) => {
-              const target = e.target;
-              console.log(target.dataset.shipIndex);
-            });
             shipDiv.addEventListener("dragstart", (e) => {
               const target = e.target;
               target.classList.add("ship-dragging");
-              // e.dataTransfer.setData();
+              e.dataTransfer.setData("text/plain", target.dataset.shipIndex);
             });
             shipDiv.addEventListener("dragend", (e) => {
               const target = e.target;
