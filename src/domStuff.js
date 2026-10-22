@@ -8,7 +8,7 @@ function DomStuff() {
    * @param {*} clickBoardHandler
    * @param {*} boardDisabled 棋盘是否禁用
    * @param {*} lastMove 上一步棋的坐标
-   * @param {*} visible 是否可见 true:全部可见 false:部分可见
+   * @param {*} visible 船只是否可见 true:可见 false:不可见
    */
   const renderBoard = (
     board,
@@ -26,7 +26,7 @@ function DomStuff() {
         let btnContent;
         let btnDisabled = false;
         if (cell.hitState === null) {
-          btnContent = "-";
+          btnContent = "";
         } else if (cell.hitState === 0) {
           btnContent = "O";
           btnDisabled = true;
@@ -34,15 +34,20 @@ function DomStuff() {
           btnContent = "X";
           btnDisabled = true;
         }
-        if (cell.shipIndex != null) {
-          btnContent += ":S";
-        }
 
         const btn = document.createElement("button");
         btn.textContent = btnContent;
         btn.dataset.coordinates = [i, j];
         // i+1,j+1  =>  10-j,i+1
         btn.style.gridArea = `${10 - j}/${i + 1}/${11 - j}/${i + 2}`;
+        if (cell.shipIndex != null) {
+          btn.classList.add("ship-cell");
+          if (visible) {
+            btn.classList.add("ship-visible-cell");
+          }
+        } else {
+          btn.classList.add("unhit-cell");
+        }
         if (boardDisabled || btnDisabled) {
           btn.setAttribute("disabled", "");
         } else {
@@ -117,6 +122,11 @@ function DomStuff() {
     turnMsgdiv.textContent = turnMsg;
   };
 
+  const clearTurnMsg = () => {
+    const turnMsgdiv = document.querySelector(".turn-msg");
+    turnMsgdiv.textContent = "";
+  };
+
   const autoClick = (coordinates) => {
     const btn = document.querySelector(
       `.gameBoardOne button:nth-of-type(${coordinates[0] * 10 + coordinates[1] + 1})`,
@@ -129,8 +139,8 @@ function DomStuff() {
     const turnMsgdiv = document.querySelector(".turn-msg");
     const gameOverMsg = `游戏结束，赢家为${game.getWinner().name}!`;
     turnMsgdiv.textContent = gameOverMsg;
-    renderBoard(game.gameBoards[0], 0, null, true);
-    renderBoard(game.gameBoards[1], 1, null, true);
+    renderBoard(game.gameBoards[0], 0, null, true, null, true);
+    renderBoard(game.gameBoards[1], 1, null, true, null, true);
   };
 
   const showNewGameBtn = (playAgain) => {
@@ -169,10 +179,20 @@ function DomStuff() {
     placeShipBtn.removeAttribute("hidden");
   };
 
+  const hidePlaceShiBtn = () => {
+    const placeShipBtn = document.querySelector(".place-ship");
+    placeShipBtn.setAttribute("hidden", "");
+  };
+
   const showStartGameBtn = (startGamehandler) => {
     const startGameBtn = document.querySelector(".start-game");
     startGameBtn.addEventListener("click", startGamehandler);
-    startGameBtn.removeAttribute("hideen");
+    startGameBtn.removeAttribute("hidden");
+  };
+
+  const hideStartGameBtn = () => {
+    const startGameBtn = document.querySelector(".start-game");
+    startGameBtn.setAttribute("hidden", "");
   };
 
   return {
@@ -186,6 +206,9 @@ function DomStuff() {
     showPlaceShipBtn,
     showStartGameBtn,
     arrangeBoard,
+    hidePlaceShiBtn,
+    hideStartGameBtn,
+    clearTurnMsg,
   };
 }
 let domStuff = DomStuff();

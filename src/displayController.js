@@ -2,6 +2,10 @@ import { game } from "./gameController.js";
 import { domStuff } from "./domStuff.js";
 
 function DisplayController() {
+  /**
+   *
+   * @param {*} lastMove 全局的上一步棋 [coordinatesX,coordinatesX,playerNumber]
+   */
   const updateScreen = (lastMove) => {
     let boradOneDisabled = false;
     let boardTwoDisabled = false;
@@ -9,10 +13,15 @@ function DisplayController() {
     let boardTwoLastMove = null;
     if (game.getActivePlayer().number === 1) {
       boradOneDisabled = true;
-      boardOneLastMove = lastMove;
     } else {
       boardTwoDisabled = true;
-      boardTwoLastMove = lastMove;
+    }
+    if (lastMove) {
+      if (lastMove[2] === 1) {
+        boardTwoLastMove = lastMove.slice(0, 2);
+      } else {
+        boardOneLastMove = lastMove.slice(0, 2);
+      }
     }
 
     domStuff.renderBoard(
@@ -21,6 +30,7 @@ function DisplayController() {
       clickBoardHandler,
       boradOneDisabled,
       boardOneLastMove,
+      true,
     );
     domStuff.renderBoard(
       game.gameBoards[1],
@@ -28,6 +38,7 @@ function DisplayController() {
       clickBoardHandler,
       boardTwoDisabled,
       boardTwoLastMove,
+      false,
     );
     domStuff.updateTurnMsg(game.getActivePlayer());
   };
@@ -35,18 +46,19 @@ function DisplayController() {
   const clickBoardHandler = (e) => {
     const target = e.target;
     if (target.dataset.coordinates) {
-      console.log(
+      /* console.log(
         `${game.getActivePlayer().name}点击了${target.dataset.coordinates}`,
-      );
+      ); */
       let coordinates = target.dataset.coordinates.split(",");
       coordinates = coordinates.map((value) => Number(value));
+      const lastMove = coordinates.concat([game.getActivePlayer().number]);
       game.playRound(coordinates);
       if (game.getWinner()) {
         domStuff.gameOver(game);
         domStuff.showNewGameBtn(playAgain);
         return;
       }
-      updateScreen(coordinates);
+      updateScreen(lastMove);
       if (game.getActivePlayer().number === 2) {
         const move = game.autoMove();
         setTimeout(() => {
@@ -58,14 +70,19 @@ function DisplayController() {
 
   const playAgain = () => {
     game.playAgain();
-    domStuff.renderBoard(game.gameBoards[0], 0, dragShipHandler, false);
-    domStuff.renderBoard(game.gameBoards[1], 1, dragShipHandler, true);
+    game.placeShips([0]);
+    domStuff.arrangeBoard(
+      game.gameBoards[0],
+      0,
+      game.getShips(0),
+      rotateShipHandler,
+      dropShipHandler,
+    );
+    domStuff.renderBoard(game.gameBoards[1], 1, null, true, null, false);
+    domStuff.clearTurnMsg();
     domStuff.hideNewGameBtn();
-  };
-
-  const dragShipHandler = (e) => {
-    const target = e.target;
-    console.log(target.classList);
+    domStuff.showPlaceShipBtn(placeShipHandler);
+    domStuff.showStartGameBtn(startGamehandler);
   };
 
   const rotateShipHandler = (e) => {
@@ -115,7 +132,7 @@ function DisplayController() {
     const dropCoordinates = target.dataset.coordinates.split(",");
     dropCoordinates[0] = Number(dropCoordinates[0]);
     dropCoordinates[1] = Number(dropCoordinates[1]);
-    console.log(dropCoordinates);
+    // console.log(dropCoordinates);
     if (game.checkReplaceShip(0, shipIndex, dropCoordinates, shipDirection)) {
       game.replaceShip(0, shipIndex, dropCoordinates, shipDirection);
       domStuff.arrangeBoard(
@@ -143,11 +160,13 @@ function DisplayController() {
     if (game.haveShips(0)) {
       game.placeShips([1]);
       updateScreen();
+      domStuff.hidePlaceShiBtn();
+      domStuff.hideStartGameBtn();
     }
   };
 
   const init = () => {
-    // updateScreen();
+    game.placeShips([0]);
     domStuff.arrangeBoard(
       game.gameBoards[0],
       0,
@@ -155,7 +174,7 @@ function DisplayController() {
       rotateShipHandler,
       dropShipHandler,
     );
-    domStuff.renderBoard(game.gameBoards[1], 1, dragShipHandler, true);
+    domStuff.renderBoard(game.gameBoards[1], 1, null, true, null, false);
     domStuff.placeCoordinatesRemark(0);
     domStuff.placeCoordinatesRemark(1);
     domStuff.showPlaceShipBtn(placeShipHandler);

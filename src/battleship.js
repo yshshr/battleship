@@ -243,14 +243,14 @@ class GameBoard {
     return this.ships.every((ship) => ship.isSunk());
   }
 
-  printBoard() {
+  /* printBoard() {
     const boardCellValues = this.board.map((row) => {
       return row.map((cell) => {
         return `${cell.hitState != null ? cell.hitState : "-"},${cell.shipIndex != null ? cell.shipIndex : "-"}`;
       });
     });
     console.log(boardCellValues);
-  }
+  } */
 
   unhitBoard() {
     return this.board.reduce((coordArr, curRow, rowIndex) => {
@@ -304,6 +304,12 @@ class Player {
     this.gameBoard = new GameBoard();
     this.lastMove = null;
     this.hittingShipCoor = null;
+  }
+
+  reset() {
+    this.gameBoard.clear();
+    this.hittingShipCoor = null;
+    this.lastMove = null;
   }
 }
 

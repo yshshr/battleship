@@ -21,13 +21,13 @@ function GameController() {
     return gameWinner;
   };
 
-  const printGameBoard = () => {
+  /* const printGameBoard = () => {
     console.log(`玩家${players[0].name}的棋盘：`);
     players[0].gameBoard.printBoard();
     console.log(`玩家${players[1].name}的棋盘：`);
     players[1].gameBoard.printBoard();
     console.log(`轮到玩家${getActivePlayer().name}的回合了！`);
-  };
+  }; */
 
   const getGameBoards = () => {
     return [players[0].gameBoard.board, players[1].gameBoard.board];
@@ -94,7 +94,7 @@ function GameController() {
     if (enemyGameBoard.board[coordinates[0]][coordinates[1]].hitState != null) {
       throw new Error("invalid move");
     }
-    console.log(`${getActivePlayer().name}在${coordinates}执行攻击操作`);
+    // console.log(`${getActivePlayer().name}在${coordinates}执行攻击操作`);
     enemyGameBoard.receiveAttack(coordinates);
     getActivePlayer().lastMove = coordinates;
     let ifHitShip = false;
@@ -109,7 +109,7 @@ function GameController() {
       if (!ifHitShip) {
         switchPlayer();
       }
-      printGameBoard();
+      // printGameBoard();
       /* if (getActivePlayer().number === 2) {
         autoMove();
       } */
@@ -248,22 +248,21 @@ function GameController() {
   };
 
   const gameOver = (winner) => {
-    console.log(`玩家${players[0].name}的棋盘：`);
+    /* console.log(`玩家${players[0].name}的棋盘：`);
     players[0].gameBoard.printBoard();
     console.log(`玩家${players[1].name}的棋盘：`);
     players[1].gameBoard.printBoard();
-    console.log(`游戏结束，赢家为${winner.name}!`);
+    console.log(`游戏结束，赢家为${winner.name}!`); */
     gameWinner = winner;
   };
 
   const playAgain = () => {
     players.forEach((player) => {
-      player.gameBoard.clear();
+      player.reset();
     });
     curPlayer = players[0];
     gameWinner = null;
-    // placeShips();
-    printGameBoard();
+    // printGameBoard();
   };
 
   const haveShips = (gameBoardIndex) => {
@@ -274,8 +273,7 @@ function GameController() {
     return players[gameBoardIndex].gameBoard.ships;
   };
 
-  // placeShips();
-  printGameBoard();
+  // printGameBoard();
 
   return {
     playRound,
