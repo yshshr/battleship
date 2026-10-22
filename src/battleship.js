@@ -302,6 +302,8 @@ class Player {
     this.name = name;
     this.number = number;
     this.gameBoard = new GameBoard();
+    this.lastMove = null;
+    this.hittingShipCoor = null;
   }
 }
 

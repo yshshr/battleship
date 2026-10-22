@@ -96,10 +96,19 @@ function GameController() {
     }
     console.log(`${getActivePlayer().name}在${coordinates}执行攻击操作`);
     enemyGameBoard.receiveAttack(coordinates);
+    getActivePlayer().lastMove = coordinates;
+    let ifHitShip = false;
+    if (
+      enemyGameBoard.board[coordinates[0]][coordinates[1]].shipIndex !== null
+    ) {
+      ifHitShip = true;
+    }
     if (enemyGameBoard.isAllSunk()) {
       gameOver(getActivePlayer());
     } else {
-      switchPlayer();
+      if (!ifHitShip) {
+        switchPlayer();
+      }
       printGameBoard();
       /* if (getActivePlayer().number === 2) {
         autoMove();
@@ -108,11 +117,134 @@ function GameController() {
   };
 
   const autoMove = () => {
-    const gameBoard = getOpponentPlayer().gameBoard;
-    const unhitBoard = gameBoard.unhitBoard();
-    const move = unhitBoard[randomNumber(unhitBoard.length)];
+    const move = smartMoveStrategy(getActivePlayer(), getOpponentPlayer());
     // playRound(move);
     return move;
+  };
+
+  const smartMoveStrategy = (player, opponentPlayer) => {
+    const board = opponentPlayer.gameBoard.board;
+    const lastMove = player.lastMove;
+    // 处理上回合命中的棋
+    if (lastMove && board[lastMove[0]][lastMove[1]].shipIndex !== null) {
+      const lastHit = [lastMove[0], lastMove[1]];
+      if (player.hittingShipCoor) {
+        if (
+          lastHit[0] < player.hittingShipCoor[0][0] ||
+          lastHit[1] < player.hittingShipCoor[0][1]
+        ) {
+          player.hittingShipCoor.unshift(lastHit);
+        } else {
+          player.hittingShipCoor.push(lastHit);
+        }
+      } else {
+        player.hittingShipCoor = [lastHit];
+      }
+    }
+
+    const smartMove = [];
+    let adjacentSlots = [];
+    let hittingShipIndex;
+    // 优先尝试相邻的格子
+    if (player.hittingShipCoor) {
+      const hittingShipCoor = player.hittingShipCoor;
+      hittingShipIndex =
+        board[hittingShipCoor[0][0]][hittingShipCoor[0][1]].shipIndex;
+      if (hittingShipCoor.length === 1) {
+        adjacentSlots.push([hittingShipCoor[0][0] - 1, hittingShipCoor[0][1]]);
+        adjacentSlots.push([hittingShipCoor[0][0] + 1, hittingShipCoor[0][1]]);
+        adjacentSlots.push([hittingShipCoor[0][0], hittingShipCoor[0][1] + 1]);
+        adjacentSlots.push([hittingShipCoor[0][0], hittingShipCoor[0][1] - 1]);
+      } else if (hittingShipCoor.length >= 2 && hittingShipCoor.length <= 3) {
+        if (
+          hittingShipCoor[0][0] < hittingShipCoor[hittingShipCoor.length - 1][0]
+        ) {
+          adjacentSlots.push([
+            hittingShipCoor[0][0] - 1,
+            hittingShipCoor[0][1],
+          ]);
+          adjacentSlots.push([
+            hittingShipCoor[hittingShipCoor.length - 1][0] + 1,
+            hittingShipCoor[hittingShipCoor.length - 1][1],
+          ]);
+        } else {
+          adjacentSlots.push([
+            hittingShipCoor[0][0],
+            hittingShipCoor[0][1] - 1,
+          ]);
+          adjacentSlots.push([
+            hittingShipCoor[hittingShipCoor.length - 1][0],
+            hittingShipCoor[hittingShipCoor.length - 1][1] + 1,
+          ]);
+        }
+      } else {
+        player.hittingShipCoor = null;
+      }
+    }
+
+    for (let slotIndex = 0; slotIndex < adjacentSlots.length; slotIndex++) {
+      const slot = adjacentSlots[slotIndex];
+      try {
+        if (slot[0] < 0 || slot[0] > 9 || slot[1] < 0 || slot[1] > 9) {
+          continue;
+        }
+        if (board[slot[0]][slot[1]].hitState !== null) {
+          continue;
+        }
+        const moveValid = checkMoveValid(opponentPlayer, slot, [
+          hittingShipIndex,
+        ]);
+        if (moveValid) {
+          smartMove.push(slot[0]);
+          smartMove.push(slot[1]);
+          break;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    // 相邻的格子不可尝试，清除hittingShipCoor
+    if (adjacentSlots.length > 0 && smartMove.length === 0) {
+      player.hittingShipCoor = null;
+    }
+
+    // 随机尝试
+    if (smartMove.length === 0) {
+      const unhitBoard = opponentPlayer.gameBoard.unhitBoard();
+      while (unhitBoard.length > 0) {
+        const randomIndex = randomNumber(unhitBoard.length);
+        const move = unhitBoard[randomIndex];
+        if (checkMoveValid(opponentPlayer, move)) {
+          smartMove.push(move[0]);
+          smartMove.push(move[1]);
+          break;
+        } else {
+          unhitBoard.splice(randomIndex, 1);
+        }
+      }
+    }
+    return smartMove;
+  };
+
+  const checkMoveValid = (player, move, excludeShipIndexs) => {
+    const board = player.gameBoard.board;
+    const surroundArea = player.gameBoard.getSurroundArea(move);
+    let moveValid = true;
+    outer: for (let i = surroundArea[0][0]; i <= surroundArea[1][0]; i++) {
+      for (let j = surroundArea[0][1]; j < surroundArea[1][1]; j++) {
+        if (board[i][j].hitState !== null && board[i][j].hitState === 1) {
+          if (
+            !excludeShipIndexs ||
+            !excludeShipIndexs.includes(board[i][j].shipIndex)
+          ) {
+            moveValid = false;
+            break outer;
+          }
+        }
+      }
+    }
+    return moveValid;
   };
 
   const gameOver = (winner) => {
